@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siatkówka App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🏐 Drużyna Siatkarska</h1>
+    <p>Dodawaj zawodników i losuj drużyny</p>
+  </header>
+
+  <main>
+    <section class="add-player">
+      <h2>Dodaj zawodnika</h2>
+      <div class="form-group">
+        <input id="name" placeholder="Imię">
+        <input id="surname" placeholder="Nazwisko">
+      </div>
+      <button onclick="addPlayer()">Dodaj</button>
+    </section>
+
+    <section class="player-list">
+      <h2>Lista zawodników</h2>
+      <div id="players" class="players-container"></div>
+    </section>
+
+    <section class="team-generator">
+      <h2>Losuj drużyny</h2>
+      <input id="teamCount" type="number" min="2" max="10" placeholder="Ilość drużyn">
+      <button onclick="generateTeams()">Losuj</button>
+      <div id="teams" class="teams-container"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Aplikacja siatkarska</p>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBBavHPLC-0SoMY53VjaGdD9To41HMorfM",
+  authDomain: "siatkowka-marki.firebaseapp.com",
+  projectId: "siatkowka-marki",
+  storageBucket: "siatkowka-marki.firebasestorage.app",
+  messagingSenderId: "42272616577",
+  appId: "1:42272616577:web:2127d217dc60b8a1c8dd80",
+  measurementId: "G-HLXWDR5D4F"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db; // udostępniamy db dla script.js
+  </script>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
