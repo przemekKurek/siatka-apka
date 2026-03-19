@@ -228,18 +228,6 @@
     "conflicts": []
   },
   {
-    "id": 19,
-    "name": "Asia",
-    "surname": "Piotrowska",
-    "atak": 11,
-    "obrona": 21,
-    "serwis": 19,
-    "wystawa": 27,
-    "wzrost": 1,
-    "gender": "kobieta",
-    "conflicts": []
-  },
-  {
     "id": 20,
     "name": "Zuzia",
     "surname": "Piotrowska",
@@ -249,18 +237,6 @@
     "wystawa": 31,
     "wzrost": 1,
     "gender": "kobieta",
-    "conflicts": []
-  },
-  {
-    "id": 21,
-    "name": "Antek",
-    "surname": "Piotrowski",
-    "atak": 22,
-    "obrona": 23,
-    "serwis": 22,
-    "wystawa": 21,
-    "wzrost": 3,
-    "gender": "mężczyzna",
     "conflicts": []
   },
   {
