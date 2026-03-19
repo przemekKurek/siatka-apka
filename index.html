@@ -9,19 +9,44 @@
 <body>
   <header>
     <h1>🏐 Drużyna Siatkarska</h1>
-    <p>Dodawaj zawodników i losuj drużyny</p>
+    <button id="addPlayerBtn" class="icon-btn">➕</button>
   </header>
 
-  <main>
-    <section class="add-player">
-      <h2>Dodaj zawodnika</h2>
-      <div class="form-group">
-        <input id="name" placeholder="Imię">
-        <input id="surname" placeholder="Nazwisko">
-      </div>
-      <button onclick="addPlayer()">Dodaj</button>
-    </section>
+  <!-- Modal dodawania/edycji zawodnika -->
+  <div id="playerModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Dodaj zawodnika</h2>
+      <form id="playerForm">
+        <input type="text" id="name" placeholder="Imię" required>
+        <input type="text" id="surname" placeholder="Nazwisko" required>
+        <label>Atak: <input type="number" id="atak" min="1" max="40" required></label>
+        <label>Obrona: <input type="number" id="obrona" min="1" max="40" required></label>
+        <label>Serwis: <input type="number" id="serwis" min="1" max="40" required></label>
+        <label>Wystawa: <input type="number" id="wystawa" min="1" max="40" required></label>
+        <label>Wzrost: 
+          <select id="wzrost">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+        <label>Płeć: 
+          <select id="gender">
+            <option value="kobieta">Kobieta</option>
+            <option value="mężczyzna">Mężczyzna</option>
+          </select>
+        </label>
+        <label>Konflikty (imiona i nazwiska, oddzielone przecinkami):
+          <input type="text" id="conflicts" placeholder="Jan Nowak, Piotr Wiśniewski">
+        </label>
+        <button type="submit" id="savePlayerBtn">Zapisz</button>
+      </form>
+    </div>
+  </div>
 
+  <main>
     <section class="player-list">
       <h2>Lista zawodników</h2>
       <div id="players" class="players-container"></div>
@@ -29,8 +54,8 @@
 
     <section class="team-generator">
       <h2>Losuj drużyny</h2>
-      <input id="teamCount" type="number" min="2" max="10" placeholder="Ilość drużyn">
-      <button onclick="generateTeams()">Losuj</button>
+      <input id="teamCount" type="number" min="2" max="3" placeholder="Ilość drużyn (2 lub 3)">
+      <button id="generateBtn">Losuj</button>
       <div id="teams" class="teams-container"></div>
     </section>
   </main>
@@ -42,8 +67,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBavHPLC-0SoMY53VjaGdD9To41HMorfM",
@@ -57,8 +81,7 @@ const firebaseConfig = {
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    window.db = db; // udostępniamy db dla script.js
+    window.db = db;
   </script>
 
   <script type="module" src="script.js"></script>

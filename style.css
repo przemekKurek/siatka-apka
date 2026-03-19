@@ -1,88 +1,110 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
 body {
+  font-family: 'Segoe UI', sans-serif;
   background: #f5f5f5;
-  color: #333;
+  margin: 0;
   padding: 10px;
 }
 
 header {
-  text-align: center;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
-h1 {
+header h1 {
   color: #1e88e5;
 }
 
-main {
-  max-width: 500px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-}
-
-section {
-  margin-bottom: 30px;
-}
-
-input {
-  width: calc(50% - 10px);
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-button {
-  padding: 12px 20px;
-  margin-top: 10px;
-  width: 100%;
-  border: none;
-  border-radius: 8px;
-  background: #1e88e5;
-  color: #fff;
-  font-size: 16px;
+.icon-btn {
+  position: absolute;
+  right: 20px;
+  font-size: 24px;
   cursor: pointer;
-  transition: 0.2s;
+  background: none;
+  border: none;
 }
 
-button:hover {
-  background: #1565c0;
-}
-
-.players-container, .teams-container {
-  display: flex;
-  flex-wrap: wrap;
+.players-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-top: 10px;
 }
 
-.player-card, .team-card {
+.player-card {
   background: #e3f2fd;
   padding: 10px;
   border-radius: 10px;
-  flex: 1 1 45%;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  cursor: pointer;
+  position: relative;
 }
 
-footer {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 12px;
-  color: #777;
+.player-card.selected {
+  border: 2px solid #1e88e5;
 }
 
-@media (max-width: 480px) {
-  input {
-    width: 100%;
-  }
+.edit-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
 }
+
+.teams-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.team-card {
+  background: #bbdefb;
+  padding: 10px;
+  border-radius: 10px;
+  flex: 1;
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  overflow: auto;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 400px;
+  position: relative;
+}
+
+.modal .close {
+  position: absolute;
+  right: 10px; top: 5px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+input, select, label, button {
+  display: block;
+  margin: 5px 0;
+  width: 100%;
+}
+
+button {
+  background: #1e88e5;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover { background: #1565c0; }
