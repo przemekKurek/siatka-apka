@@ -1,7 +1,93 @@
+/* 🔹 RESET */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* 🔹 TŁO */
+body {
+  background: linear-gradient(135deg, #1e88e5, #42a5f5, #90caf9);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* 🔹 GŁÓWNA KARTA */
+main {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* 🔹 HEADER */
+header {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+header h1 {
+  color: white;
+  margin-bottom: 10px;
+}
+
+/* 🔹 PRZYCISK PLUS */
+.icon-btn {
+  position: absolute;
+  right: 20px;
+  top: 0;
+  font-size: 28px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: 0.2s;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+}
+
+/* 🔹 LISTA ZAWODNIKÓW */
+.players-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+/* 🔹 KARTA ZAWODNIKA */
+.player-card {
+  background: #f1f8ff;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.player-card:hover {
+  transform: scale(1.05);
+}
+
+.player-card.selected {
+  background: #1e88e5;
+  color: white;
+  font-weight: bold;
+}
+
+/* 🔹 PRZYCISK LOSOWANIA */
 .generate-btn {
   width: 100%;
   padding: 14px;
-  margin-top: 15px;
+  margin-top: 20px;
 
   font-size: 16px;
   font-weight: bold;
@@ -23,4 +109,113 @@
 
 .generate-btn:active {
   transform: scale(0.98);
+}
+
+/* 🔹 TABELA DRUŻYN */
+.teams-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.teams-table th {
+  background: #1e88e5;
+  color: white;
+  padding: 12px;
+}
+
+.teams-table td {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  padding: 10px;
+  text-align: center;
+}
+
+.teams-table tr:nth-child(even) td {
+  background: #f1f8ff;
+}
+
+/* 🔹 PRZYCISKI PRZENOSZENIA */
+.teams-table button {
+  margin-left: 5px;
+  padding: 3px 6px;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #e0e0e0;
+}
+
+.teams-table button:hover {
+  background: #bdbdbd;
+}
+
+/* 🔹 MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0; 
+  top: 0;
+  width: 100%; 
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+
+/* 🔹 OKNO MODALNE */
+.modal-content {
+  background: white;
+  margin: 60px auto;
+  padding: 20px;
+  border-radius: 15px;
+  max-width: 400px;
+  position: relative;
+}
+
+/* 🔹 ZAMKNIJ */
+.modal .close {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* 🔹 FORMULARZ */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* 🔹 PRZYCISK W MODALU */
+.modal button {
+  margin-top: 10px;
+  background: #1e88e5;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal button:hover {
+  background: #1565c0;
+}
+
+/* 🔹 RESPONSYWNOŚĆ */
+@media (max-width: 700px) {
+  .players-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 450px) {
+  .players-container {
+    grid-template-columns: 1fr;
+  }
 }
