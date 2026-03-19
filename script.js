@@ -1,125 +1,186 @@
-import { collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+let players = [];
 
-const db = window.db;
-const playersCol = collection(db, "players");
-
-// -------------------- MODAL --------------------
-const modal = document.getElementById("playerModal");
-const addBtn = document.getElementById("addPlayerBtn");
-const closeBtn = modal.querySelector(".close");
-const form = document.getElementById("playerForm");
-let editingDocId = null;
-
-addBtn.onclick = () => {
-  editingDocId = null;
-  modal.style.display = "block";
-  document.getElementById("modalTitle").textContent = "Dodaj zawodnika";
-  form.reset();
+// 🔹 ŁADOWANIE ZAWODNIKÓW
+async function loadPlayers() {
+  const res = await fetch("players.json");
+  players = await res.json();
+  renderPlayers();
 }
 
-closeBtn.onclick = () => modal.style.display = "none";
-window.onclick = e => { if(e.target==modal) modal.style.display="none"; }
-
-// -------------------- FIRESTORE --------------------
-onSnapshot(playersCol, snapshot => {
+// 🔹 RENDER LISTY
+function renderPlayers() {
   const container = document.getElementById("players");
   container.innerHTML = "";
-  snapshot.forEach(docSnap => {
-    const data = docSnap.data();
+
+  players.forEach((p, index) => {
     const div = document.createElement("div");
     div.className = "player-card";
-    div.textContent = `${data.name} ${data.surname}`;
-    div.dataset.id = docSnap.id;
-    div.onclick = () => div.classList.toggle("selected");
+    div.textContent = `${p.name} ${p.surname}`;
+    div.dataset.index = index;
 
-    // edit icon
-    const edit = document.createElement("span");
-    edit.textContent = "✏️";
-    edit.className = "edit-icon";
-    edit.onclick = e => {
-      e.stopPropagation();
-      editingDocId = docSnap.id;
-      modal.style.display = "block";
-      document.getElementById("modalTitle").textContent = "Edytuj zawodnika";
-      document.getElementById("name").value = data.name;
-      document.getElementById("surname").value = data.surname;
-      document.getElementById("atak").value = data.atak;
-      document.getElementById("obrona").value = data.obrona;
-      document.getElementById("serwis").value = data.serwis;
-      document.getElementById("wystawa").value = data.wystawa;
-      document.getElementById("wzrost").value = data.wzrost;
-      document.getElementById("gender").value = data.gender;
-      document.getElementById("conflicts").value = (data.conflicts || []).join(", ");
-    }
-    div.appendChild(edit);
+    div.onclick = () => {
+      div.classList.toggle("selected");
+    };
+
     container.appendChild(div);
   });
-});
-
-// -------------------- DODAJ / EDYTUJ ZAWODNIKA --------------------
-form.onsubmit = async e => {
-  e.preventDefault();
-  const newData = {
-    name: document.getElementById("name").value,
-    surname: document.getElementById("surname").value,
-    atak: parseInt(document.getElementById("atak").value),
-    obrona: parseInt(document.getElementById("obrona").value),
-    serwis: parseInt(document.getElementById("serwis").value),
-    wystawa: parseInt(document.getElementById("wystawa").value),
-    wzrost: parseInt(document.getElementById("wzrost").value),
-    gender: document.getElementById("gender").value,
-    conflicts: document.getElementById("conflicts").value.split(",").map(s=>s.trim()).filter(s=>s)
-  };
-  try {
-    if(editingDocId){
-      const d = doc(db, "players", editingDocId);
-      await updateDoc(d, newData);
-    } else {
-      await addDoc(playersCol, newData);
-    }
-    modal.style.display="none";
-  } catch(err){ alert("Błąd: "+err); }
 }
 
-// -------------------- LOSOWANIE DRUŻYN --------------------
-document.getElementById("generateBtn").onclick = () => {
-  const selectedCards = document.querySelectorAll(".player-card.selected");
-  if(selectedCards.length < 2){ alert("Wybierz co najmniej 2 zawodników"); return; }
-  const players = Array.from(selectedCards).map(c=>{
-    const id = c.dataset.id;
-    const name = c.textContent;
-    const data = c.__data; // przypisane przy onSnapshot
-    return {id, name, ...data};
+// 🔹 OBLICZANIE PUNKTÓW
+function calculateScore(p) {
+  return p.atak + p.obrona + p.serwis + p.wystawa + (p.wzrost * 10);
+}
+
+// 🔹 ROZMIARY DRUŻYN
+function getTeamSizes(n) {
+  const map = {
+    10: [5,5],
+    11: [6,5],
+    12: [6,6],
+    13: [7,6],
+    14: [7,7],
+    15: [5,5,5],
+    16: [6,5,5],
+    17: [6,6,5],
+    18: [6,6,6]
+  };
+  return map[n] || null;
+}
+
+// 🔹 LOSOWANIE DRUŻYN (ULEPSZONE)
+window.generateTeams = function() {
+  const selected = [];
+
+  document.querySelectorAll(".player-card").forEach((card, i) => {
+    if (card.classList.contains("selected")) {
+      selected.push({...players[i]});
+    }
   });
 
-  const teamsContainer = document.getElementById("teams");
-  teamsContainer.innerHTML = "";
+  const n = selected.length;
+  const sizes = getTeamSizes(n);
 
-  // Wyliczamy ilość drużyn i liczebność
-  const n = players.length;
-  let teamSizes;
-  if(n<=14){
-    teamSizes = [Math.ceil(n/2), Math.floor(n/2)];
-  } else {
-    // 3 drużyny
-    const base = Math.floor(n/3);
-    teamSizes = [base, base, n-2*base];
+  if (!sizes) {
+    alert("Wybierz od 10 do 18 zawodników");
+    return;
   }
 
-  // Algorytm: sortujemy losowo, dzielimy na drużyny
-  const shuffled = players.sort(()=>Math.random()-0.5);
-  const teams = [];
-  let idx=0;
-  for(let size of teamSizes){
-    teams.push(shuffled.slice(idx, idx+size));
-    idx+=size;
-  }
-
-  // Render drużyn
-  teams.forEach((t, i)=>{
-    const div = document.createElement("div");
-    div.className="team-card";
-    div.innerHTML=`<strong>Drużyna ${i+1}</strong><br>`+t.map(p=>p.name).join("<br>");
-    teamsContainer.appendChild(div);
+  // punktacja
+  selected.forEach(p => {
+    p.score = calculateScore(p);
+    p.fullName = p.name + " " + p.surname;
   });
+
+  let bestTeams = null;
+  let bestScore = Infinity;
+
+  const ITERATIONS = 300;
+
+  for (let i = 0; i < ITERATIONS; i++) {
+
+    const shuffled = [...selected].sort(() => Math.random() - 0.5);
+
+    const teams = sizes.map(() => []);
+    let index = 0;
+
+    sizes.forEach((size, teamIndex) => {
+      for (let j = 0; j < size; j++) {
+        teams[teamIndex].push(shuffled[index++]);
+      }
+    });
+
+    // 🔹 OCENA
+
+    const sums = teams.map(team =>
+      team.reduce((sum, p) => sum + p.score, 0)
+    );
+
+    const women = teams.map(team =>
+      team.filter(p => p.gender === "kobieta").length
+    );
+
+    const maxSum = Math.max(...sums);
+    const minSum = Math.min(...sums);
+    const diffPoints = maxSum - minSum;
+
+    const maxWomen = Math.max(...women);
+    const minWomen = Math.min(...women);
+    const diffWomen = maxWomen - minWomen;
+
+    let conflictPenalty = 0;
+
+    teams.forEach(team => {
+      team.forEach(p => {
+        if (!p.conflicts) return;
+
+        p.conflicts.forEach(c => {
+          if (team.some(t => t.fullName === c)) {
+            conflictPenalty += 50;
+          }
+        });
+      });
+    });
+
+    const totalScore =
+      diffPoints * 1 +
+      diffWomen * 30 +
+      conflictPenalty * 10;
+
+    if (totalScore < bestScore) {
+      bestScore = totalScore;
+      bestTeams = teams;
+    }
+  }
+
+  renderTeams(bestTeams);
 };
+
+// 🔹 RENDER DRUŻYN + PRZENOSZENIE
+function renderTeams(teams) {
+  const container = document.getElementById("teams");
+  container.innerHTML = "";
+
+  teams.forEach((team, teamIndex) => {
+    const div = document.createElement("div");
+    div.className = "team-card";
+
+    const title = document.createElement("h3");
+    title.textContent = "Drużyna " + (teamIndex + 1);
+    div.appendChild(title);
+
+    team.forEach((player, playerIndex) => {
+      const pDiv = document.createElement("div");
+      pDiv.textContent = player.name + " " + player.surname;
+
+      const btnLeft = document.createElement("button");
+      btnLeft.textContent = "⬅";
+      btnLeft.onclick = () => movePlayer(teams, teamIndex, playerIndex, -1);
+
+      const btnRight = document.createElement("button");
+      btnRight.textContent = "➡";
+      btnRight.onclick = () => movePlayer(teams, teamIndex, playerIndex, 1);
+
+      pDiv.appendChild(btnLeft);
+      pDiv.appendChild(btnRight);
+
+      div.appendChild(pDiv);
+    });
+
+    container.appendChild(div);
+  });
+}
+
+// 🔹 PRZENOSZENIE ZAWODNIKA
+function movePlayer(teams, teamIndex, playerIndex, direction) {
+  const newTeamIndex = teamIndex + direction;
+
+  if (newTeamIndex < 0 || newTeamIndex >= teams.length) return;
+
+  const player = teams[teamIndex].splice(playerIndex, 1)[0];
+  teams[newTeamIndex].push(player);
+
+  renderTeams(teams);
+}
+
+// 🔹 START
+loadPlayers();
