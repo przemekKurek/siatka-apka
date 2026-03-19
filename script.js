@@ -1,13 +1,13 @@
 let players = [];
 
-// 🔹 ŁADOWANIE ZAWODNIKÓW
+// 🔹 ŁADOWANIE
 async function loadPlayers() {
   const res = await fetch("players.json");
   players = await res.json();
   renderPlayers();
 }
 
-// 🔹 RENDER LISTY
+// 🔹 LISTA ZAWODNIKÓW
 function renderPlayers() {
   const container = document.getElementById("players");
   container.innerHTML = "";
@@ -18,15 +18,13 @@ function renderPlayers() {
     div.textContent = `${p.name} ${p.surname}`;
     div.dataset.index = index;
 
-    div.onclick = () => {
-      div.classList.toggle("selected");
-    };
+    div.onclick = () => div.classList.toggle("selected");
 
     container.appendChild(div);
   });
 }
 
-// 🔹 OBLICZANIE PUNKTÓW
+// 🔹 PUNKTY
 function calculateScore(p) {
   return p.atak + p.obrona + p.serwis + p.wystawa + (p.wzrost * 10);
 }
@@ -47,8 +45,8 @@ function getTeamSizes(n) {
   return map[n] || null;
 }
 
-// 🔹 LOSOWANIE DRUŻYN (ULEPSZONE)
-window.generateTeams = function() {
+// 🔹 LOSOWANIE
+document.getElementById("generateBtn").onclick = () => {
   const selected = [];
 
   document.querySelectorAll(".player-card").forEach((card, i) => {
@@ -57,15 +55,13 @@ window.generateTeams = function() {
     }
   });
 
-  const n = selected.length;
-  const sizes = getTeamSizes(n);
+  const sizes = getTeamSizes(selected.length);
 
   if (!sizes) {
-    alert("Wybierz od 10 do 18 zawodników");
+    alert("Wybierz 10–18 zawodników");
     return;
   }
 
-  // punktacja
   selected.forEach(p => {
     p.score = calculateScore(p);
     p.fullName = p.name + " " + p.surname;
@@ -74,46 +70,29 @@ window.generateTeams = function() {
   let bestTeams = null;
   let bestScore = Infinity;
 
-  const ITERATIONS = 300;
-
-  for (let i = 0; i < ITERATIONS; i++) {
+  for (let i = 0; i < 300; i++) {
 
     const shuffled = [...selected].sort(() => Math.random() - 0.5);
 
     const teams = sizes.map(() => []);
     let index = 0;
 
-    sizes.forEach((size, teamIndex) => {
+    sizes.forEach((size, t) => {
       for (let j = 0; j < size; j++) {
-        teams[teamIndex].push(shuffled[index++]);
+        teams[t].push(shuffled[index++]);
       }
     });
 
-    // 🔹 OCENA
+    const sums = teams.map(t => t.reduce((s,p)=>s+p.score,0));
+    const women = teams.map(t => t.filter(p=>p.gender==="kobieta").length);
 
-    const sums = teams.map(team =>
-      team.reduce((sum, p) => sum + p.score, 0)
-    );
-
-    const women = teams.map(team =>
-      team.filter(p => p.gender === "kobieta").length
-    );
-
-    const maxSum = Math.max(...sums);
-    const minSum = Math.min(...sums);
-    const diffPoints = maxSum - minSum;
-
-    const maxWomen = Math.max(...women);
-    const minWomen = Math.min(...women);
-    const diffWomen = maxWomen - minWomen;
+    const diffPoints = Math.max(...sums) - Math.min(...sums);
+    const diffWomen = Math.max(...women) - Math.min(...women);
 
     let conflictPenalty = 0;
-
     teams.forEach(team => {
       team.forEach(p => {
-        if (!p.conflicts) return;
-
-        p.conflicts.forEach(c => {
+        p.conflicts?.forEach(c => {
           if (team.some(t => t.fullName === c)) {
             conflictPenalty += 50;
           }
@@ -121,13 +100,10 @@ window.generateTeams = function() {
       });
     });
 
-    const totalScore =
-      diffPoints * 1 +
-      diffWomen * 30 +
-      conflictPenalty * 10;
+    const score = diffPoints + diffWomen*30 + conflictPenalty*10;
 
-    if (totalScore < bestScore) {
-      bestScore = totalScore;
+    if (score < bestScore) {
+      bestScore = score;
       bestTeams = teams;
     }
   }
@@ -135,45 +111,72 @@ window.generateTeams = function() {
   renderTeams(bestTeams);
 };
 
-// 🔹 RENDER DRUŻYN + PRZENOSZENIE
+// 🔹 TABELA DRUŻYN
 function renderTeams(teams) {
   const container = document.getElementById("teams");
   container.innerHTML = "";
 
-  teams.forEach((team, teamIndex) => {
-    const div = document.createElement("div");
-    div.className = "team-card";
+  const table = document.createElement("table");
+  table.className = "teams-table";
 
-    const title = document.createElement("h3");
-    title.textContent = "Drużyna " + (teamIndex + 1);
-    div.appendChild(title);
+  // nagłówek
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
 
-    team.forEach((player, playerIndex) => {
-      const pDiv = document.createElement("div");
-      pDiv.textContent = player.name + " " + player.surname;
+  teams.forEach((_, i) => {
+    const th = document.createElement("th");
+    th.textContent = "Drużyna " + (i+1);
+    headRow.appendChild(th);
+  });
 
-      const btnLeft = document.createElement("button");
-      btnLeft.textContent = "⬅";
-      btnLeft.onclick = () => movePlayer(teams, teamIndex, playerIndex, -1);
+  thead.appendChild(headRow);
+  table.appendChild(thead);
 
-      const btnRight = document.createElement("button");
-      btnRight.textContent = "➡";
-      btnRight.onclick = () => movePlayer(teams, teamIndex, playerIndex, 1);
+  // maksymalna długość drużyny
+  const maxLen = Math.max(...teams.map(t => t.length));
 
-      pDiv.appendChild(btnLeft);
-      pDiv.appendChild(btnRight);
+  const tbody = document.createElement("tbody");
 
-      div.appendChild(pDiv);
+  for (let i = 0; i < maxLen; i++) {
+    const row = document.createElement("tr");
+
+    teams.forEach((team, teamIndex) => {
+      const cell = document.createElement("td");
+
+      if (team[i]) {
+        const p = team[i];
+
+        const wrapper = document.createElement("div");
+        wrapper.textContent = p.name + " " + p.surname;
+
+        // przyciski przenoszenia
+        const left = document.createElement("button");
+        left.textContent = "⬅";
+        left.onclick = () => movePlayer(teams, teamIndex, i, -1);
+
+        const right = document.createElement("button");
+        right.textContent = "➡";
+        right.onclick = () => movePlayer(teams, teamIndex, i, 1);
+
+        wrapper.appendChild(left);
+        wrapper.appendChild(right);
+
+        cell.appendChild(wrapper);
+      }
+
+      row.appendChild(cell);
     });
 
-    container.appendChild(div);
-  });
+    tbody.appendChild(row);
+  }
+
+  table.appendChild(tbody);
+  container.appendChild(table);
 }
 
-// 🔹 PRZENOSZENIE ZAWODNIKA
+// 🔹 PRZENOSZENIE
 function movePlayer(teams, teamIndex, playerIndex, direction) {
   const newTeamIndex = teamIndex + direction;
-
   if (newTeamIndex < 0 || newTeamIndex >= teams.length) return;
 
   const player = teams[teamIndex].splice(playerIndex, 1)[0];
@@ -182,5 +185,5 @@ function movePlayer(teams, teamIndex, playerIndex, direction) {
   renderTeams(teams);
 }
 
-// 🔹 START
+// START
 loadPlayers();
