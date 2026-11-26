@@ -1,0 +1,63 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOrganizer() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/attendanceAdmins/$(request.auth.uid));
+    }
+
+    function isAnonymousPlayer() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+
+    match /attendanceAdmins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+    }
+
+    function validMatch(data) {
+      return data.keys().hasOnly(['matchId', 'startsAt', 'acceptingVotes', 'playerIds'])
+        && data.matchId is string && data.matchId.matches('^[a-z0-9-]+$')
+        && data.startsAt is int && data.startsAt > 0
+        && data.acceptingVotes is bool
+        && data.playerIds is list && data.playerIds.size() > 0
+        && data.playerIds.toSet().size() == data.playerIds.size();
+    }
+
+    match /attendance/current {
+      allow get: if true;
+      allow create: if isOrganizer() && validMatch(request.resource.data)
+        && request.resource.data.acceptingVotes;
+      allow update: if isOrganizer() && validMatch(request.resource.data)
+        && ((request.resource.data.matchId == resource.data.matchId
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptingVotes']))
+          || (request.resource.data.matchId != resource.data.matchId
+            && request.resource.data.startsAt != resource.data.startsAt
+            && request.resource.data.acceptingVotes));
+    }
+
+    function openForPlayer(matchId, playerId) {
+      let active = get(/databases/$(database)/documents/attendance/current).data;
+      return active.matchId == matchId && active.acceptingVotes && playerId in active.playerIds;
+    }
+
+    function validVote(matchId, playerId) {
+      let vote = request.resource.data;
+      return isAnonymousPlayer() && openForPlayer(matchId, playerId)
+        && vote.keys().hasOnly(['ownerId', 'response'])
+        && vote.ownerId == request.auth.uid && vote.response in ['yes', 'no'];
+    }
+
+    match /attendanceMatches/{matchId}/votes/{playerId} {
+      allow get: if isOrganizer()
+        || (isAnonymousPlayer() && (resource == null || resource.data.ownerId == request.auth.uid));
+      allow list: if isOrganizer();
+      allow create: if validVote(matchId, playerId);
+      allow update: if validVote(matchId, playerId) && resource.data.ownerId == request.auth.uid;
+    }
+  }
+}

@@ -45,9 +45,43 @@
     </div>
   </div>
 
-  <main>
+  <main id="team-draw">
     <section class="player-list">
       <h2>Lista zawodników</h2>
+      <details id="attendance-organizer" class="attendance-import">
+        <summary>Zapisy na grę</summary>
+        <div class="attendance-content">
+          <p id="organizer-status" class="rsvp-status" role="status">Ładowanie zapisów…</p>
+          <form id="organizer-login" class="rsvp-form" hidden>
+            <label for="organizer-email">E-mail organizatora</label>
+            <input id="organizer-email" type="email" autocomplete="username" required>
+            <label for="organizer-password">Hasło</label>
+            <input id="organizer-password" type="password" autocomplete="current-password" required>
+            <button class="rsvp-button rsvp-primary" type="submit">Zaloguj się</button>
+          </form>
+          <button id="organizer-sign-out" class="rsvp-button" type="button" hidden>Wyloguj się</button>
+
+          <div id="organizer-settings" class="rsvp-settings" hidden>
+            <div class="rsvp-current">
+              <p id="organizer-match"></p>
+              <p id="organizer-totals" role="status"></p>
+            </div>
+            <form id="organizer-match-form" class="rsvp-form">
+              <label for="organizer-start">Termin gry</label>
+              <input id="organizer-start" type="datetime-local" required>
+              <div class="rsvp-actions">
+                <button id="organizer-open" class="rsvp-button rsvp-primary" type="submit">Otwórz zapisy</button>
+                <button id="organizer-close" class="rsvp-button" type="button" disabled>Zamknij zapisy</button>
+              </div>
+            </form>
+            <div class="rsvp-actions">
+              <button id="organizer-share" class="rsvp-button" type="button">Kopiuj link do zapisów</button>
+              <a id="organizer-voter-link" href="?view=attendance">Podgląd zapisów</a>
+            </div>
+            <input id="organizer-link" type="url" aria-label="Link do zapisów" readonly hidden>
+          </div>
+        </div>
+      </details>
       <details id="attendance-import" class="attendance-import">
         <summary>Importuj obecnych ze zrzutu</summary>
         <div class="attendance-content">
@@ -88,29 +122,23 @@
     </section>
   </main>
 
+  <main id="attendance-voter" class="rsvp-voter" hidden>
+    <h2>Zapisy na grę</h2>
+    <p id="voter-date" class="rsvp-date"></p>
+    <div id="voter-controls" class="rsvp-voter-controls" hidden>
+      <label for="voter-player">Twoje nazwisko</label>
+      <select id="voter-player"></select>
+      <div class="rsvp-vote-actions">
+        <button id="voter-yes" class="rsvp-button rsvp-primary" type="button" aria-pressed="false" disabled>Będę</button>
+        <button id="voter-no" class="rsvp-button" type="button" aria-pressed="false" disabled>Nie będę</button>
+      </div>
+    </div>
+    <p id="voter-status" class="rsvp-status" role="status">Ładowanie zapisów…</p>
+  </main>
+
   <footer>
     <p>© 2026 Aplikacja siatkarska</p>
   </footer>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBBavHPLC-0SoMY53VjaGdD9To41HMorfM",
-  authDomain: "siatkowka-marki.firebaseapp.com",
-  projectId: "siatkowka-marki",
-  storageBucket: "siatkowka-marki.firebasestorage.app",
-  messagingSenderId: "42272616577",
-  appId: "1:42272616577:web:2127d217dc60b8a1c8dd80",
-  measurementId: "G-HLXWDR5D4F"
-};
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    window.db = db;
-  </script>
 
   <script type="module" src="script.js"></script>
 </body>

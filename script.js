@@ -1,17 +1,51 @@
 import { setupAttendanceImport } from "./attendance-import.js";
 
 let players = [];
+let activeAttendanceMatch = null;
+const manualAttendance = new Map();
+const voterView = new URLSearchParams(location.search).get("view") === "attendance";
+
+if (voterView) {
+  document.title = "Zapisy na siatkówkę";
+  document.getElementById("team-draw").hidden = true;
+  document.getElementById("attendance-voter").hidden = false;
+}
 
 // 🔹 ŁADOWANIE
 async function loadPlayers() {
   const res = await fetch("players.json");
+  if (!res.ok) throw new Error("Nie udało się wczytać listy zawodników.");
   players = await res.json();
+  if (voterView) {
+    const { setupAttendanceVoter } = await import("./attendance-voter.js");
+    await setupAttendanceVoter(players);
+    return;
+  }
+
   renderPlayers();
   setupAttendanceImport(players, matched => {
-    const present = new Set(matched);
-    document.querySelectorAll("#players .player-card").forEach(card => {
-      card.classList.toggle("selected", present.has(players[card.dataset.index]));
-    });
+    const present = new Set(matched.map(p => String(p.id)));
+    if (activeAttendanceMatch) {
+      for (const player of players) {
+        const id = String(player.id);
+        manualAttendance.set(id, present.has(id));
+      }
+    }
+    replaceSelection(present);
+  });
+
+  const { setupAttendanceOrganizer } = await import("./attendance-organizer.js");
+  await setupAttendanceOrganizer(players, (matchId, playerIds) => {
+    if (activeAttendanceMatch !== matchId) manualAttendance.clear();
+    activeAttendanceMatch = matchId;
+    if (matchId) replaceSelection(new Set(playerIds), manualAttendance);
+  });
+}
+
+function replaceSelection(present, overrides) {
+  document.querySelectorAll("#players .player-card").forEach(card => {
+    const id = String(players[card.dataset.index].id);
+    card.classList.toggle("selected", overrides?.get(id) ?? present.has(id));
   });
 }
 
@@ -26,7 +60,10 @@ function renderPlayers() {
     div.textContent = `${p.name} ${p.surname}`;
     div.dataset.index = index;
 
-    div.onclick = () => div.classList.toggle("selected");
+    div.onclick = () => {
+      const selected = div.classList.toggle("selected");
+      if (activeAttendanceMatch) manualAttendance.set(String(p.id), selected);
+    };
 
     container.appendChild(div);
   });
@@ -194,4 +231,7 @@ function movePlayer(teams, teamIndex, playerIndex, direction) {
 }
 
 // START
-loadPlayers();
+loadPlayers().catch(() => {
+  const status = document.getElementById(voterView ? "voter-status" : "players");
+  status.textContent = "Nie udało się uruchomić aplikacji. Odśwież stronę i spróbuj ponownie.";
+});
