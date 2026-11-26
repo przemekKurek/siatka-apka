@@ -179,6 +179,18 @@
     "gender": "mężczyzna",
     "conflicts": []
   },
+    {
+    "id": 75,
+    "name": "Kunc",
+    "surname": "Dominik",
+    "atak": 25,
+    "obrona": 21,
+    "serwis": 21,
+    "wystawa": 22,
+    "wzrost": 2,
+    "gender": "mężczyzna",
+    "conflicts": []
+  },
   {
     "id": 16,
     "name": "Leszek",
