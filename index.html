@@ -48,6 +48,37 @@
   <main>
     <section class="player-list">
       <h2>Lista zawodników</h2>
+      <details id="attendance-import" class="attendance-import">
+        <summary>Importuj obecnych ze zrzutu</summary>
+        <div class="attendance-content">
+          <p>W Messengerze otwórz reakcje pod wiadomością o grze i wybierz listę 👍. Wklej zrzut tej listy (Ctrl+V) lub dodaj pliki. Jeśli lista się przewija, dodaj kolejne zrzuty.</p>
+          <label for="attendance-files">Dodaj zrzuty ekranu</label>
+          <input id="attendance-files" type="file" accept="image/png,image/jpeg,image/webp" multiple disabled>
+          <p class="attendance-note">Zrzuty są odczytywane w przeglądarce.</p>
+          <p id="attendance-status" role="status"></p>
+
+          <div id="attendance-review" class="attendance-review" hidden>
+            <label for="attendance-text">Odczytane osoby</label>
+            <textarea id="attendance-text" rows="5" placeholder="Jedna osoba w wierszu"></textarea>
+            <p class="attendance-note">Sprawdź listę i popraw odczyt w razie potrzeby.</p>
+            <div id="attendance-preview" class="attendance-preview" hidden>
+              <div id="attendance-matches" hidden>
+                <h3>Dopasowani zawodnicy</h3>
+                <ul id="attendance-matched"></ul>
+              </div>
+              <div id="attendance-unresolved" hidden>
+                <h3>Do sprawdzenia</h3>
+                <ul id="attendance-unmatched"></ul>
+              </div>
+            </div>
+            <div class="attendance-actions">
+              <button type="button" id="attendance-apply" disabled>Zaznacz obecnych</button>
+              <button type="button" id="attendance-clear">Wyczyść listę importu</button>
+            </div>
+            <p class="attendance-note">Zatwierdzenie zastąpi bieżące zaznaczenie zawodników.</p>
+          </div>
+        </div>
+      </details>
       <div id="players" class="players-container"></div>
     </section>
 

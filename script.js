@@ -1,3 +1,5 @@
+import { setupAttendanceImport } from "./attendance-import.js";
+
 let players = [];
 
 // 🔹 ŁADOWANIE
@@ -5,6 +7,12 @@ async function loadPlayers() {
   const res = await fetch("players.json");
   players = await res.json();
   renderPlayers();
+  setupAttendanceImport(players, matched => {
+    const present = new Set(matched);
+    document.querySelectorAll("#players .player-card").forEach(card => {
+      card.classList.toggle("selected", present.has(players[card.dataset.index]));
+    });
+  });
 }
 
 // 🔹 LISTA ZAWODNIKÓW

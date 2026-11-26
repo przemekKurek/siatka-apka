@@ -29,6 +29,112 @@ main {
 /* =========================
    LISTA ZAWODNIKÓW
 ========================= */
+.attendance-import {
+  margin: 14px 0;
+  border: 1px solid #bdd9ef;
+  border-radius: 12px;
+  background: #f6faff;
+}
+
+.attendance-import summary {
+  padding: 12px 14px;
+  color: #14518a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.attendance-content,
+.attendance-review:not([hidden]) {
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-content {
+  padding: 0 14px 14px;
+}
+
+.attendance-content label {
+  font-weight: 600;
+}
+
+.attendance-content input {
+  max-width: 100%;
+}
+
+.attendance-content input::file-selector-button,
+.attendance-actions button {
+  padding: 9px 12px;
+  border: 1px solid #bdd9ef;
+  border-radius: 8px;
+  background: white;
+  color: #14518a;
+  font: inherit;
+  cursor: pointer;
+}
+
+.attendance-content textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 10px;
+  border: 1px solid #a2bfdb;
+  border-radius: 8px;
+  resize: vertical;
+  font: inherit;
+}
+
+.attendance-note {
+  color: #435b70;
+  font-size: 14px;
+}
+
+#attendance-status {
+  color: #14518a;
+  font-weight: 600;
+}
+
+#attendance-status:empty {
+  position: absolute;
+}
+
+.attendance-preview:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 10px;
+}
+
+.attendance-preview > div {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: white;
+}
+
+.attendance-preview h3 {
+  font-size: 15px;
+}
+
+.attendance-preview ul {
+  margin: 6px 0 0 18px;
+  overflow-wrap: anywhere;
+}
+
+.attendance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attendance-actions button:first-child {
+  border-color: #14518a;
+  background: #14518a;
+  color: white;
+}
+
+.attendance-actions button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .players-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
